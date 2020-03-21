@@ -1,18 +1,60 @@
+const fs = require('fs');
 const SerialPort = require('serialport');
+const { exec } = require("child_process");
 const Readline = SerialPort.parsers.Readline;
 const port = new SerialPort('/dev/ttyUSB0');
 
 var opn = require('opn');
 const parser = port.pipe(new Readline({delimiter: '\n'}));
 
+
 var delayedexit = false;
 function makedecision() {
   console.log('well, continue');
   if (delayedexit) {
-    console.log("can't reach device. Check com port availibility");
-    process.exit(22);
+    console.log("waiting ...");
+    // process.exit(22);
   }
 }
+
+function makeRecord() {
+  function makeCurrentObj(data) {
+    let currenObj;
+    if (data.length === 0) currenObj = [];
+    else {
+      try {
+        currenObj = JSON.parse(data);
+      } catch (err) {
+        console.log("can't read file");
+      }
+    }
+    let currentDate = new Date();
+    let tmpobj = {};
+    tmpobj[currentDate] = 'POMO_DONE';
+    currenObj.push(tmpobj);
+    let stringvar = JSON.stringify(currenObj);
+
+    fs.writeFile('./pomolog.json', stringvar, 'utf8', function(err) {
+      if (err) {
+        return console.log(err);
+      } else {
+        console.log('file updated');
+        console.log(`Pomo done ... ${currenObj.length}`);
+      }
+    });
+  }
+
+  fs.readFile('./pomolog.json', 'utf8', (err, jsondata) => {
+    if (err) {
+      console.log("File doesn't exist, making new one.");
+        //  not a big deal;
+        jsondata = [];
+    }
+    console.log('REaded sussesfully');
+    makeCurrentObj(jsondata);
+  });
+}
+
 function delayhandler(a) {
   if (a) {
     delayedexit = false;
@@ -23,6 +65,11 @@ function delayhandler(a) {
     setTimeout(makedecision, 500);
   }
 }
+
+const minute_made = 0;
+let old_done = 0;
+let isPomo = false;
+
 parser.on('data', function(line) {
   let second;
   let min;
@@ -34,18 +81,23 @@ parser.on('data', function(line) {
   }
   delayhandler(true);
   if (delayedexit) return;
+    
+      exec("notify-send 'end of pomo'");
+      makeRecord();
 
   second = tmp[0];
-
   min = second / 60;
+    if (min > 23 )isPomo = true;
 
   if (min > 3) console.log(` ${Math.floor(min)} min`);
   else console.log(' < 3 min');
-  if (second < 3 && second > 0) {
-    // opens the url in the default browser
+  if (second < 3 && second > 0 && isPomo) {
     opn('https://this-page-intentionally-left-blank.org/');
-    return process.exit(22);
+      //or / and 
+      isPomo = false;
+
   } else if (!second) {
     console.log('waiting for meaningfull input ...');
   }
 });
+
