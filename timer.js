@@ -1,18 +1,17 @@
 const fs = require('fs');
 const SerialPort = require('serialport');
-const { exec } = require("child_process");
+const {exec} = require('child_process');
 const Readline = SerialPort.parsers.Readline;
 const port = new SerialPort('/dev/ttyUSB0');
 
 var opn = require('opn');
 const parser = port.pipe(new Readline({delimiter: '\n'}));
 
-
 var delayedexit = false;
 function makedecision() {
   console.log('well, continue');
   if (delayedexit) {
-    console.log("waiting ...");
+    console.log('waiting ...');
     // process.exit(22);
   }
 }
@@ -47,8 +46,8 @@ function makeRecord() {
   fs.readFile('./pomolog.json', 'utf8', (err, jsondata) => {
     if (err) {
       console.log("File doesn't exist, making new one.");
-        //  not a big deal;
-        jsondata = [];
+      //  not a big deal;
+      jsondata = [];
     }
     console.log('REaded sussesfully');
     makeCurrentObj(jsondata);
@@ -66,8 +65,6 @@ function delayhandler(a) {
   }
 }
 
-const minute_made = 0;
-let old_done = 0;
 let isPomo = false;
 
 parser.on('data', function(line) {
@@ -81,23 +78,23 @@ parser.on('data', function(line) {
   }
   delayhandler(true);
   if (delayedexit) return;
-    
-      exec("notify-send 'end of pomo'");
-      makeRecord();
 
   second = tmp[0];
   min = second / 60;
-    if (min > 23 )isPomo = true;
+  if (min > 23 && !isPomo) {
+    isPomo = true;
+    exec("notify-send 'new pomo just started'");
+  }
 
   if (min > 3) console.log(` ${Math.floor(min)} min`);
   else console.log(' < 3 min');
   if (second < 3 && second > 0 && isPomo) {
+    isPomo = false;
     opn('https://this-page-intentionally-left-blank.org/');
-      //or / and 
-      isPomo = false;
-
+    //or / and
+    exec("notify-send 'end of pomo'");
+    makeRecord();
   } else if (!second) {
     console.log('waiting for meaningfull input ...');
   }
 });
-
