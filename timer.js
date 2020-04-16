@@ -3,6 +3,7 @@ const SerialPort = require('serialport');
 const {exec} = require('child_process');
 const Readline = SerialPort.parsers.Readline;
 const port = new SerialPort('/dev/ttyUSB0');
+const shell = require('shelljs')
 
 var opn = require('opn');
 const parser = port.pipe(new Readline({delimiter: '\n'}));
@@ -12,7 +13,7 @@ function makedecision() {
   console.log('well, continue');
   if (delayedexit) {
     console.log('waiting ...');
-    // process.exit(22);
+                                   // process.exit(22);
   }
 }
 
@@ -72,6 +73,16 @@ parser.on('data', function(line) {
   let min;
   let tmp = line.match(/\d+/);
   let matchPhrase = line.match(/Second.to.count/);
+
+    let matchWiki = /CMD_WikiNote/.test(line);
+
+    if(matchWiki){
+        console.log("red_button_short_Wiki_open_signal");
+
+    exec("gvim -c 'VimwikiMakeDiaryNote'");
+    shell.exec("notify-send 'CMD_WikiNote given'");
+    }
+
   if (!matchPhrase || !tmp) {
     delayhandler();
     return;
@@ -90,7 +101,8 @@ parser.on('data', function(line) {
   else console.log(' < 3 min');
   if (second < 3 && second > 0 && isPomo) {
     isPomo = false;
-    opn('https://this-page-intentionally-left-blank.org/');
+
+    // opn('https://this-page-intentionally-left-blank.org/');
     //or / and
     exec("notify-send 'end of pomo'");
     makeRecord();
