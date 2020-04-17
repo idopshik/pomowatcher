@@ -1,0 +1,22 @@
+{
+  "name": "littletimer",
+  "version": "1.0.0",
+  "description": "pomo-device assist littleapp",
+  "main": "timer.js",
+  "scripts": {
+    "dev": "node timer.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idopshik/pomowatcher.git"
+  },
+  "author": "idopshik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/idopshik/pomowatcher/issues"
+  },
+  "homepage": "https://github.com/idopshik/pomowatcher#readme",
+  "dependencies": {
+    "shelljs": "^0.8.3"
+  }
+}

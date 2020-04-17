@@ -4,6 +4,7 @@ const {exec} = require('child_process');
 const Readline = SerialPort.parsers.Readline;
 const port = new SerialPort('/dev/ttyUSB0');
 const shell = require('shelljs')
+const path = require('path');
 
 var opn = require('opn');
 const parser = port.pipe(new Readline({delimiter: '\n'}));
@@ -78,9 +79,7 @@ parser.on('data', function(line) {
 
     if(matchWiki){
         console.log("red_button_short_Wiki_open_signal");
-
-    exec("gvim -c 'VimwikiMakeDiaryNote'");
-    shell.exec("notify-send 'CMD_WikiNote given'");
+    shell.exec(path.join(__dirname, "wikinote.sh"));
     }
 
   if (!matchPhrase || !tmp) {
