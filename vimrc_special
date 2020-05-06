@@ -1,0 +1,14 @@
+filetype off
+call plug#begin('~/.vim/plugged')
+Plug 'vimwiki/vimwiki'
+call plug#end()
+source ~/.vim_runtime/vimrcs/noplugins_vimrc
+
+
+        let g:vimwiki_list = [
+                                \{'path': '~/Dropbox/.vim_cloud/vimwiki/tech.wiki',
+                                \ 'template_path': '~/Dropbox/.vim_cloud/vimwiki/templates',
+                                \ 'template_default': 'default',
+                                \ 'template_ext': '.html' },
+                                \{'path': '~/Dropbox/.vim_cloud/vimwiki/personal.wiki'}
+                        \]
